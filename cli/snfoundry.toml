@@ -1,0 +1,3 @@
+[sncast.default]
+account = "my_account"
+url = "https://free-rpc.nethermind.io/sepolia-juno"
