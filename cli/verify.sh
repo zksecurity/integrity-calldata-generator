@@ -18,7 +18,7 @@ echo "Sending verify_proof_initial"
 send_transaction "verify_proof_initial" "calldata/initial" $1
 
 job_id=$1
-i=2
+i=1
 while true; do
     filename="calldata/step${i}"
 
