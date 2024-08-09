@@ -55,7 +55,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     for (i, (v, w)) in var_state.iter().zip(witness.iter()).enumerate() {
         write(
             if i+1 == var_state.len() { format!("calldata/final") } else { format!("calldata/step{}", i+1) },
-            format!("{}\n{}\n{}\n", const_state, v, w)
+            format!("{} {} {}", const_state, v, w)
         )?;
     }
     Ok(())
