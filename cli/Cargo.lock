@@ -109,6 +109,32 @@ dependencies = [
 ]
 
 [[package]]
+name = "cairo-felt"
+version = "0.9.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ae932292b9ba497a4e892b56aa4e0c6f329a455180fdbdc132700dfe68d9b153"
+dependencies = [
+ "lazy_static",
+ "num-bigint",
+ "num-integer",
+ "num-traits",
+ "serde",
+]
+
+[[package]]
+name = "cairo-proof-parser"
+version = "0.1.2"
+source = "git+https://github.com/Okm165/cairo-proof-parser?rev=97a04bbee07330311b38d6f4cecfed3acb237626#97a04bbee07330311b38d6f4cecfed3acb237626"
+dependencies = [
+ "anyhow",
+ "clap",
+ "num-bigint",
+ "regex",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
 name = "cfg-if"
 version = "1.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -265,6 +291,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "either"
+version = "1.13.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "60b1af1c220855b6ceac025d3f6ecdd2b7c4894bfe9cd9bda4fbb4bc7c0d4cf0"
+
+[[package]]
 name = "flate2"
 version = "1.0.30"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -324,6 +356,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7943c866cc5cd64cbc25b2e01621d07fa8eb2a1a23160ee81ce38704e97b8ecf"
 
 [[package]]
+name = "itertools"
+version = "0.13.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "413ee7dfc52ee1a4949ceeb7dbc8a33f2d6c088194d9f922fb8318faf1f01186"
+dependencies = [
+ "either",
+]
+
+[[package]]
 name = "itoa"
 version = "1.0.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -358,6 +399,15 @@ checksum = "358e172628e713b80a530a59654154bfc45783a6ed70ea284839800cebdf8f97"
 dependencies = [
  "serde",
  "serde_json",
+]
+
+[[package]]
+name = "lazy_static"
+version = "1.5.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "bbd2bcb4c963f2ddae06a2efc7e9f3591312473c50c6685e1f298068316e66fe"
+dependencies = [
+ "spin",
 ]
 
 [[package]]
@@ -600,6 +650,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "spin"
+version = "0.9.8"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6980e8d7511241f8acf4aebddbb1ff938df5eebe98691418c4468d0b72a96a67"
+
+[[package]]
 name = "starknet-core"
 version = "0.11.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -688,13 +744,23 @@ checksum = "13c2bddecc57b384dee18652358fb23172facb8a2c51ccc10d74c157bdea3292"
 name = "swiftness"
 version = "0.1.2"
 dependencies = [
+ "anyhow",
+ "cairo-felt",
+ "cairo-proof-parser",
  "clap",
+ "itertools",
+ "num-bigint",
+ "num-traits",
+ "serde",
+ "serde_json",
+ "starknet-crypto",
  "swiftness_air",
  "swiftness_commitment",
  "swiftness_fri",
  "swiftness_pow",
  "swiftness_proof_parser",
  "swiftness_stark",
+ "thiserror",
 ]
 
 [[package]]
