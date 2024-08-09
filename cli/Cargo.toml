@@ -8,8 +8,16 @@ repository = "https://github.com/iosis-tech/swiftness"
 version = "0.0.7"
 
 [dependencies]
+anyhow = "1"
+cairo-felt = "0.9"
+cairo-proof-parser = { git = "https://github.com/Okm165/cairo-proof-parser", rev = "97a04bbee07330311b38d6f4cecfed3acb237626" }
 clap = { version = "4.4.4", features = ["derive"] }
-
+itertools = "0.13.0"
+num-bigint = "0.4.4"
+num-traits = "0.2.19"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+starknet-crypto = { version = "0.7.1", default-features = false }
 swiftness_air = { path = "../crates/air", default-features = false, features = [
     "std",
 ], version = "0.0.7" }
@@ -19,6 +27,10 @@ swiftness_stark = { path = "../crates/stark", default-features = false, features
 swiftness_proof_parser = { path = "../proof_parser", default-features = false, features = [
     "std",
 ], version = "0.0.7" }
+swiftness_fri = { path = "../crates/fri", default-features = false, features = [
+    "std",
+], version = "0.0.7" }
+thiserror = "1.0"
 
 [features]
 default = ["recursive", "keccak"]

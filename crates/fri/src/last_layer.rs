@@ -3,6 +3,8 @@ use starknet_core::types::NonZeroFelt;
 use starknet_crypto::Felt;
 
 use crate::layer::FriLayerQuery;
+use crate::fri::WITNESS;
+use std::format;
 
 // Verifies FRI last layer by evaluating the given polynomial on the given points
 // (=inverses of x_inv_values), and comparing the results to the given values.
@@ -10,6 +12,10 @@ pub fn verify_last_layer(
     mut quries: Vec<FriLayerQuery>,
     coefficients: Vec<Felt>,
 ) -> Result<(), Error> {
+    unsafe {
+        WITNESS.push(format!("{} {}", coefficients.len(), coefficients.iter().map(|x| x.to_hex_string()).collect::<Vec<_>>().join(" ")));
+    }
+
     for query in quries.iter_mut() {
         let horner_eval_result = horner_eval(
             &coefficients,

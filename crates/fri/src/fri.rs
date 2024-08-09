@@ -1,5 +1,5 @@
 use alloc::{borrow::ToOwned, vec::Vec};
-use starknet_crypto::Felt;
+use starknet_crypto::{poseidon_hash_many, Felt};
 use swiftness_commitment::table::{
     commit::table_commit,
     config::Config as TableCommitmentConfig,
@@ -7,6 +7,7 @@ use swiftness_commitment::table::{
     types::{Commitment as TableCommitment, Decommitment as TableDecommitment},
 };
 use swiftness_transcript::transcript::Transcript;
+use std::{format, print, println, string::String};
 
 use crate::{
     config::Config as FriConfig,
@@ -18,6 +19,10 @@ use crate::{
         self, Commitment as FriCommitment, Decommitment as FriDecommitment, LayerWitness, Witness,
     },
 };
+
+pub static mut CONST_STATE: String = String::new();
+pub static mut VAR_STATE: Vec<String> = Vec::new();
+pub static mut WITNESS: Vec<String> = Vec::new();
 
 // A FRI phase with N layers starts with a single input layer.
 // Afterwards, there are N - 1 inner layers resulting from FRI-folding each preceding layer.
@@ -121,6 +126,24 @@ fn fri_verify_layers(
             eval_point: *eval_points.get(i).unwrap(),
         };
 
+        let queries_string = queries.iter().map(|q| format!(" 0x{:x} 0x{:x} 0x{:x}", q.index, q.y_value, q.x_inv_value)).collect::<Vec<_>>().join("");
+
+        let witness_leaves_string = target_layer_witness_leaves
+            .iter()
+            .map(|x| x.to_hex_string())
+            .collect::<Vec<_>>()
+            .join(" ");
+        let witness_table_string = target_layer_witness_table_withness.vector.authentications
+            .iter()
+            .map(|x| x.to_hex_string())
+            .collect::<Vec<_>>()
+            .join(" ");
+        unsafe {
+            VAR_STATE.push(format!("{} {}{}", i, queries.len(), queries_string));
+            WITNESS.push(format!("{} {} {} {}", target_layer_witness_leaves.len(), witness_leaves_string, target_layer_witness_table_withness.vector.authentications.len(), witness_table_string));
+        }
+        
+
         // Compute next layer queries.
         let (next_queries, verify_indices, verify_y_values) =
             compute_next_layer(&mut queries, &mut target_layer_witness_leaves, params).unwrap();
@@ -134,6 +157,10 @@ fn fri_verify_layers(
         );
 
         queries = next_queries;
+    }
+    let queries_string = queries.iter().map(|q| format!(" 0x{:x} 0x{:x} 0x{:x}", q.index, q.y_value, q.x_inv_value)).collect::<Vec<_>>().join("");
+    unsafe {
+        VAR_STATE.push(format!("{} {}{}", len, queries.len(), queries_string));
     }
 
     queries
@@ -155,6 +182,31 @@ pub fn fri_verify(
 
     // Compute first FRI layer queries.
     let fri_queries = gather_first_layer_queries(queries, decommitment.values, decommitment.points);
+
+    // Print constant state.
+    unsafe {
+        CONST_STATE += format!("{} {}", commitment.config.n_layers - 1, commitment.inner_layers.len()).as_str();
+        commitment.inner_layers.iter().for_each(|c| {
+            CONST_STATE += format!(" 0x{:x} 0x{:x} 0x{:x} 0x{:x} 0x{:x} 0x{:x}",
+                c.config.n_columns,
+                c.config.vector.height,
+                c.config.vector.n_verifier_friendly_commitment_layers,
+                c.vector_commitment.config.height,
+                c.vector_commitment.config.n_verifier_friendly_commitment_layers,
+                c.vector_commitment.commitment_hash,
+            ).as_str();
+        });
+        CONST_STATE += format!(" {}", commitment.eval_points.len()).as_str();
+        commitment.eval_points.iter().for_each(|e| {
+            CONST_STATE += format!(" 0x{:x}", e).as_str();
+        });
+        CONST_STATE += format!(" {}", commitment.config.fri_step_sizes.len() - 1).as_str();
+        commitment.config.fri_step_sizes.iter().skip(1).for_each(|s| {
+            CONST_STATE += format!(" 0x{:x}", s).as_str();
+        });
+        let hash = poseidon_hash_many(&commitment.last_layer_coefficients);
+        CONST_STATE += format!(" 0x{:x}", hash).as_str();
+    }
 
     // Compute fri_group.
     let fri_group = get_fri_group();
