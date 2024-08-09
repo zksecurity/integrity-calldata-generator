@@ -1,5 +1,10 @@
 #!/usr/bin/env bash
 
+if [ $# -ne 1 ]; then
+    echo "Usage: $0 <job_id>"
+    exit 1
+fi
+
 send_transaction() {
     sncast \
         --wait \
