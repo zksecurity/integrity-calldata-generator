@@ -12,7 +12,9 @@ cargo run --release --bin swiftness --features recursive,keccak --no-default-fea
 
 You can modify verifier address in `cli/calldata/contract_address` file.
 
-3. Send verification transactions
+3. Modify starknet account in `snfoundry.toml`
+
+4. Send verification transactions
 
 ```
 ./verify.sh <job_id>
