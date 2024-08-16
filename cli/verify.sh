@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
-if [ $# -ne 1 ]; then
-    echo "Usage: $0 <job_id>"
+if [ $# -ne 5 ]; then
+    echo "Usage: $0 <job_id> <layout> <hasher> <security_bits> <version>"
     exit 1
 fi
 
@@ -16,7 +16,7 @@ send_transaction() {
             invoke \
             --contract-address "$(<calldata/contract_address)" \
             --function "$1" \
-            --calldata "$3 $(<$2)"
+            --calldata "$3 $(<$2) $4 $5 $6 $7"
 
         sleep 5 # extra delay to make sure the transaction is registered
 
