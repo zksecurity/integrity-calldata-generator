@@ -5,6 +5,12 @@ if [ $# -ne 5 ]; then
     exit 1
 fi
 
+arg_1=$1
+arg_2=$2
+arg_3=$3
+arg_4=$4
+arg_5=$5
+
 send_transaction() {
     local retries=5
     local count=0
@@ -16,7 +22,7 @@ send_transaction() {
             invoke \
             --contract-address "$(<calldata/contract_address)" \
             --function "$1" \
-            --calldata "$3 $(<$2) $4 $5 $6 $7"
+            --calldata "$arg_1 $(<$2) $arg_2 $arg_3 $arg_4 $arg_5"
 
         sleep 5 # extra delay to make sure the transaction is registered
 
@@ -37,9 +43,8 @@ send_transaction() {
 
 echo ""
 echo "Sending verify_proof_initial"
-send_transaction "verify_proof_initial" "calldata/initial" $1
+send_transaction "verify_proof_initial" "calldata/initial"
 
-job_id=$1
 i=1
 while true; do
     filename="calldata/step${i}"
@@ -47,7 +52,7 @@ while true; do
     if [[ -e "$filename" ]]; then
         echo ""
         echo "Sending verify_proof_step (${i})"
-        send_transaction "verify_proof_step" "$filename" "$job_id"
+        send_transaction "verify_proof_step" "$filename"
     else
         break
     fi
@@ -57,4 +62,4 @@ done
 
 echo ""
 echo "Sending verify_proof_final_and_register_fact"
-send_transaction "verify_proof_final_and_register_fact" "calldata/final" $1
+send_transaction "verify_proof_final_and_register_fact" "calldata/final"
