@@ -5,6 +5,8 @@ use std::path::PathBuf;
 pub use swiftness_proof_parser::parse;
 pub use swiftness_stark::config::StarkConfig;
 pub use transform::TransformTo;
+use starknet_crypto::Felt;
+use itertools::Itertools;
 
 #[cfg(feature = "dex")]
 use swiftness_air::layout::dex::Layout;
@@ -51,7 +53,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let (const_state, mut var_state, mut witness) = unsafe {
         (CONST_STATE.clone(), VAR_STATE.clone(), WITNESS.clone())
     };
-    let initial = serialize(input)?;
+    let initial = serialize(input)?
+        .split_whitespace()
+        .map(|s| Felt::from_dec_str(s).unwrap().to_hex_string())
+        .join(" ");
+
     let final_ = format!(
         "{} {} {}",
         const_state,

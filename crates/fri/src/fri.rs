@@ -139,8 +139,8 @@ fn fri_verify_layers(
             .collect::<Vec<_>>()
             .join(" ");
         unsafe {
-            VAR_STATE.push(format!("{} {}{}", i, queries.len(), queries_string));
-            WITNESS.push(format!("{} {} {} {}", target_layer_witness_leaves.len(), witness_leaves_string, target_layer_witness_table_withness.vector.authentications.len(), witness_table_string));
+            VAR_STATE.push(format!("0x{:x} 0x{:x}{}", i, queries.len(), queries_string));
+            WITNESS.push(format!("0x{:x} {} 0x{:x} {}", target_layer_witness_leaves.len(), witness_leaves_string, target_layer_witness_table_withness.vector.authentications.len(), witness_table_string));
         }
         
 
@@ -160,7 +160,7 @@ fn fri_verify_layers(
     }
     let queries_string = queries.iter().map(|q| format!(" 0x{:x} 0x{:x} 0x{:x}", q.index, q.y_value, q.x_inv_value)).collect::<Vec<_>>().join("");
     unsafe {
-        VAR_STATE.push(format!("{} {}{}", len, queries.len(), queries_string));
+        VAR_STATE.push(format!("0x{:x} 0x{:x}{}", len, queries.len(), queries_string));
     }
 
     queries
@@ -185,7 +185,7 @@ pub fn fri_verify(
 
     // Print constant state.
     unsafe {
-        CONST_STATE += format!("{} {}", commitment.config.n_layers - 1, commitment.inner_layers.len()).as_str();
+        CONST_STATE += format!("0x{:x} 0x{:x}", commitment.config.n_layers - 1, commitment.inner_layers.len()).as_str();
         commitment.inner_layers.iter().for_each(|c| {
             CONST_STATE += format!(" 0x{:x} 0x{:x} 0x{:x} 0x{:x} 0x{:x} 0x{:x}",
                 c.config.n_columns,
@@ -196,11 +196,11 @@ pub fn fri_verify(
                 c.vector_commitment.commitment_hash,
             ).as_str();
         });
-        CONST_STATE += format!(" {}", commitment.eval_points.len()).as_str();
+        CONST_STATE += format!(" 0x{:x}", commitment.eval_points.len()).as_str();
         commitment.eval_points.iter().for_each(|e| {
             CONST_STATE += format!(" 0x{:x}", e).as_str();
         });
-        CONST_STATE += format!(" {}", commitment.config.fri_step_sizes.len() - 1).as_str();
+        CONST_STATE += format!(" 0x{:x}", commitment.config.fri_step_sizes.len() - 1).as_str();
         commitment.config.fri_step_sizes.iter().skip(1).for_each(|s| {
             CONST_STATE += format!(" 0x{:x}", s).as_str();
         });
