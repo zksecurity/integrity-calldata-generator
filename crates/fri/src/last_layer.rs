@@ -13,7 +13,7 @@ pub fn verify_last_layer(
     coefficients: Vec<Felt>,
 ) -> Result<(), Error> {
     unsafe {
-        WITNESS.push(format!("{} {}", coefficients.len(), coefficients.iter().map(|x| x.to_hex_string()).collect::<Vec<_>>().join(" ")));
+        WITNESS.push(format!("0x{:x} {}", coefficients.len(), coefficients.iter().map(|x| x.to_hex_string()).collect::<Vec<_>>().join(" ")));
     }
 
     for query in quries.iter_mut() {
