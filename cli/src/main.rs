@@ -69,5 +69,6 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             format!("{} {} {}", const_state, v, w)
         )?;
     }
+    print!("{}", var_state.len());
     Ok(())
 }
