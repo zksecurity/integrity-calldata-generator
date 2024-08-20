@@ -35,6 +35,10 @@ struct CairoVMVerifier {
     /// Path to proof JSON file
     #[clap(short, long)]
     proof: PathBuf,
+
+    /// Output directory for the generated files
+    #[clap(short, long, default_value = "calldata")]
+    out: PathBuf,
 }
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -44,16 +48,23 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let security_bits = stark_proof.config.security_bits();
     let _result = stark_proof.verify::<Layout>(security_bits)?;
 
-    let (const_state, var_state, witness) = unsafe {
+    let (const_state, mut var_state, mut witness) = unsafe {
         (CONST_STATE.clone(), VAR_STATE.clone(), WITNESS.clone())
     };
     let initial = serialize(input)?;
+    let final_ = format!(
+        "{} {} {}",
+        const_state,
+        var_state.pop().unwrap(),
+        witness.pop().unwrap()
+    );
 
-    write("calldata/initial", initial)?;
+    write(cli.out.join("initial"), initial)?;
+    write(cli.out.join("final"), final_)?;
 
     for (i, (v, w)) in var_state.iter().zip(witness.iter()).enumerate() {
         write(
-            if i+1 == var_state.len() { format!("calldata/final") } else { format!("calldata/step{}", i+1) },
+            cli.out.join(format!("step{}", i + 1)),
             format!("{} {} {}", const_state, v, w)
         )?;
     }
