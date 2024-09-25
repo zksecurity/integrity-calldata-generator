@@ -1,15 +1,25 @@
 #!/usr/bin/env bash
 
 if [ $# -ne 5 ]; then
-    echo "Usage: $0 <job_id> <layout> <hasher> <security_bits> <version>"
+    echo "Usage: $0 <job_id> <layout> <hasher> <stone_version> <cairo_version>"
     exit 1
 fi
 
-arg_1=$1
-arg_2=$2
-arg_3=$3
-arg_4=$4
-arg_5=$5
+string_to_hex() {
+    input_string="$1"
+    hex_string="0x"
+    for ((i = 0; i < ${#input_string}; i++)); do
+        hex_char=$(printf "%x" "'${input_string:$i:1}")
+        hex_string+=$hex_char
+    done
+    echo "$hex_string"
+}
+
+job_id=$1
+layout=$(string_to_hex $2)
+hasher=$(string_to_hex $3)
+stone_version=$(string_to_hex $4)
+cairo_version=$(string_to_hex $5)
 
 send_transaction() {
     local retries=5
@@ -20,9 +30,10 @@ send_transaction() {
         sncast \
             --wait \
             invoke \
+            --fee-token eth \
             --contract-address "$(<calldata/contract_address)" \
             --function "$1" \
-            --calldata "$arg_1 $(<$2) $arg_2 $arg_3 $arg_4 $arg_5"
+            --calldata "$3 $(<$2)"
 
         sleep 5 # extra delay to make sure the transaction is registered
 
@@ -43,7 +54,7 @@ send_transaction() {
 
 echo ""
 echo "Sending verify_proof_initial"
-send_transaction "verify_proof_initial" "calldata/initial"
+send_transaction "verify_proof_initial" "calldata/initial" "$job_id $layout $hasher $stone_version $cairo_version"
 
 i=1
 while true; do
@@ -52,7 +63,7 @@ while true; do
     if [[ -e "$filename" ]]; then
         echo ""
         echo "Sending verify_proof_step (${i})"
-        send_transaction "verify_proof_step" "$filename"
+        send_transaction "verify_proof_step" "$filename" "$job_id"
     else
         break
     fi
@@ -62,4 +73,4 @@ done
 
 echo ""
 echo "Sending verify_proof_final_and_register_fact"
-send_transaction "verify_proof_final_and_register_fact" "calldata/final"
+send_transaction "verify_proof_final_and_register_fact" "calldata/final" "$job_id"
