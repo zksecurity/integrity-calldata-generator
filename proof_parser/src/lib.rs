@@ -7,16 +7,15 @@ mod layout;
 mod stark_proof;
 mod utils;
 
-pub use crate::json_parser::ProofJSON;
-pub use crate::stark_proof::{
-    CairoPublicInput, StarkConfig, StarkProof, StarkUnsentCommitment, StarkWitness,
-};
+pub use crate::ast::{Expr, Exprs};
+
+use crate::{json_parser::ProofJSON, stark_proof::StarkProof};
 use std::convert::TryFrom;
 extern crate clap;
 extern crate num_bigint;
 extern crate regex;
 extern crate serde;
-use crate::ast::Exprs;
+use swiftness_stark::types::StarkProof as StarkProofFromVerifier;
 
 pub struct ParseStarkProof {
     pub config: Exprs,
@@ -57,6 +56,6 @@ mod tests {
     #[test]
     fn test_parse_as_exprs() {
         let input = include_str!("../../examples/proofs/recursive/cairo0_example_proof.json");
-        let _: ParseStarkProof = parse_as_exprs(input).unwrap();
+        let _: ParseStarkProof = parse_as_exprs(input.to_string()).unwrap();
     }
 }
