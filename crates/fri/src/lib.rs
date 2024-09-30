@@ -15,5 +15,7 @@ pub mod last_layer;
 pub mod layer;
 pub mod types;
 
+pub use crate::fri::{CONST_STATE, VAR_STATE, WITNESS};
+
 #[cfg(test)]
 pub mod tests;
