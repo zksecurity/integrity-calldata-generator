@@ -15,7 +15,6 @@ members = [
 exclude = [
     "cli",
     "proof_parser",
-    "wasm_bindings",
     "examples/no_std_build",
 ]
 
