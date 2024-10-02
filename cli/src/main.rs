@@ -1,6 +1,6 @@
 pub mod transform;
 
-use clap::Parser;
+use clap::{Parser, ValueEnum};
 use std::path::PathBuf;
 pub use swiftness_proof_parser::parse;
 pub use swiftness_stark::config::StarkConfig;
@@ -8,28 +8,34 @@ pub use transform::TransformTo;
 use starknet_crypto::Felt;
 use itertools::Itertools;
 
-#[cfg(feature = "dex")]
-use swiftness_air::layout::dex::Layout;
-#[cfg(feature = "dynamic")]
-use swiftness_air::layout::dynamic::Layout;
-#[cfg(feature = "recursive")]
-use swiftness_air::layout::recursive::Layout;
-#[cfg(feature = "recursive_with_poseidon")]
-use swiftness_air::layout::recursive_with_poseidon::Layout;
-#[cfg(feature = "small")]
-use swiftness_air::layout::small::Layout;
-#[cfg(feature = "starknet")]
-use swiftness_air::layout::starknet::Layout;
-#[cfg(feature = "starknet_with_keccak")]
-use swiftness_air::layout::starknet_with_keccak::Layout;
+use swiftness_air::layout::dex::Layout as LayoutDex;
+// use swiftness_air::layout::dynamic::Layout;
+use swiftness_air::layout::recursive::Layout as LayoutRecursive;
+use swiftness_air::layout::recursive_with_poseidon::Layout as LayoutRecursiveWithPoseidon;
+use swiftness_air::layout::small::Layout as LayoutSmall;
+use swiftness_air::layout::starknet::Layout as LayoutStarknet;
+use swiftness_air::layout::starknet_with_keccak::Layout as LayoutStarknetWithKeccak;
 
 use swiftness_fri::fri::{CONST_STATE, VAR_STATE, WITNESS};
+use swiftness_stark::stark::Error;
+use swiftness_stark::types::StarkProof;
 
 mod serialize;
 use crate::serialize::serialize;
 use std::fs::write;
 use std::format;
 
+
+#[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, ValueEnum)]
+#[clap(rename_all = "snake_case")]
+enum Layout {
+    Dex,
+    Recursive,
+    RecursiveWithPoseidon,
+    Small,
+    Starknet,
+    StarknetWithKeccak,
+}
 
 #[derive(Parser)]
 #[command(author, version, about)]
@@ -41,6 +47,25 @@ struct CairoVMVerifier {
     /// Output directory for the generated files
     #[clap(short, long, default_value = "calldata")]
     out: PathBuf,
+
+    /// Layout
+    #[clap(short, long)]
+    layout: Layout,
+}
+
+fn verify_layout(
+    layout: Layout,
+    stark_proof: StarkProof,
+    security_bits: Felt
+) -> Result<(Felt, Felt), Error> {
+    match layout {
+        Layout::Dex => stark_proof.verify::<LayoutDex>(security_bits),
+        Layout::Recursive => stark_proof.verify::<LayoutRecursive>(security_bits),
+        Layout::RecursiveWithPoseidon => stark_proof.verify::<LayoutRecursiveWithPoseidon>(security_bits),
+        Layout::Small => stark_proof.verify::<LayoutSmall>(security_bits),
+        Layout::Starknet => stark_proof.verify::<LayoutStarknet>(security_bits),
+        Layout::StarknetWithKeccak => stark_proof.verify::<LayoutStarknetWithKeccak>(security_bits),
+    }
 }
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -48,7 +73,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let input = std::fs::read_to_string(cli.proof)?;
     let stark_proof = parse(input.clone())?.transform_to();
     let security_bits = stark_proof.config.security_bits();
-    let _result = stark_proof.verify::<Layout>(security_bits)?;
+    let _result = verify_layout(cli.layout, stark_proof, security_bits)?;
 
     let (const_state, mut var_state, mut witness) = unsafe {
         (CONST_STATE.clone(), VAR_STATE.clone(), WITNESS.clone())

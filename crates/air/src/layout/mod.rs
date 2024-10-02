@@ -5,19 +5,12 @@ use starknet_crypto::Felt;
 use starknet_types_core::felt::FeltIsZeroError;
 use swiftness_transcript::transcript::Transcript;
 
-#[cfg(feature = "dex")]
+// pub mod dynamic;
 pub mod dex;
-#[cfg(feature = "dynamic")]
-pub mod dynamic;
-#[cfg(feature = "recursive")]
 pub mod recursive;
-#[cfg(feature = "recursive_with_poseidon")]
 pub mod recursive_with_poseidon;
-#[cfg(feature = "small")]
 pub mod small;
-#[cfg(feature = "starknet")]
 pub mod starknet;
-#[cfg(feature = "starknet_with_keccak")]
 pub mod starknet_with_keccak;
 
 // StarkCurve

@@ -34,7 +34,8 @@ swiftness_stark = { path = "../crates/stark", default-features = false, features
     "std",
 ], version = "0.1.2" }
 swiftness_proof_parser = { path = "../proof_parser", version = "0.1.2" }
-thiserror = "1.0"
+thiserror = "1.0.61"
+thiserror-no-std = "2.0.2"
 
 [features]
 default = ["recursive", "keccak_160_lsb", "stone5"]
