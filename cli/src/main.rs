@@ -16,6 +16,7 @@ use swiftness_air::layout::small::Layout as LayoutSmall;
 use swiftness_air::layout::starknet::Layout as LayoutStarknet;
 use swiftness_air::layout::starknet_with_keccak::Layout as LayoutStarknetWithKeccak;
 
+use swiftness_air::public_memory::STONE_6_ENABLED;
 use swiftness_fri::fri::{CONST_STATE, VAR_STATE, WITNESS};
 use swiftness_stark::stark::Error;
 use swiftness_stark::types::StarkProof;
@@ -37,6 +38,12 @@ enum Layout {
     StarknetWithKeccak,
 }
 
+#[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, ValueEnum)]
+enum StoneVersion {
+    Stone5,
+    Stone6,
+}
+
 #[derive(Parser)]
 #[command(author, version, about)]
 struct CairoVMVerifier {
@@ -51,6 +58,10 @@ struct CairoVMVerifier {
     /// Layout
     #[clap(short, long)]
     layout: Layout,
+
+    /// Stone version
+    #[clap(short, long)]
+    stone_version: StoneVersion,
 }
 
 fn verify_layout(
@@ -73,6 +84,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let input = std::fs::read_to_string(cli.proof)?;
     let stark_proof = parse(input.clone())?.transform_to();
     let security_bits = stark_proof.config.security_bits();
+    unsafe {
+        STONE_6_ENABLED = cli.stone_version == StoneVersion::Stone6;
+    };
     let _result = verify_layout(cli.layout, stark_proof, security_bits)?;
 
     let (const_state, mut var_state, mut witness) = unsafe {

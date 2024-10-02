@@ -8,7 +8,7 @@ repository.workspace = true
 version.workspace = true
 
 [features]
-default = ["std", "dynamic", "keccak_160_lsb", "stone5"]
+default = ["std", "keccak_160_lsb"]
 std = [
     "dep:thiserror",
     "swiftness_commitment/std",
@@ -16,15 +16,6 @@ std = [
     "starknet-core/std",
     "starknet-crypto/std",
 ]
-dex = []
-recursive = []
-recursive_with_poseidon = []
-small = []
-starknet = []
-starknet_with_keccak = []
-dynamic = []
-stone5 = []
-stone6 = []
 keccak_160_lsb = ["swiftness_commitment/keccak_160_lsb"]
 keccak_248_lsb = ["swiftness_commitment/keccak_248_lsb"]
 blake2s_160_lsb = ["swiftness_commitment/blake2s_160_lsb"]

@@ -8,7 +8,7 @@ repository.workspace = true
 version.workspace = true
 
 [features]
-default = ["std", "recursive", "keccak_160_lsb", "stone5"]
+default = ["std", "keccak_160_lsb"]
 std = [
     "dep:thiserror",
     "starknet-core/std",
@@ -18,19 +18,6 @@ std = [
     "swiftness_fri/std",
     "swiftness_pow/std",
 ]
-dex = ["swiftness_air/dex"]
-recursive = [
-    "swiftness_air/recursive",
-]
-recursive_with_poseidon = [
-    "swiftness_air/recursive_with_poseidon",
-]
-small = ["swiftness_air/small"]
-starknet = ["swiftness_air/starknet"]
-starknet_with_keccak = ["swiftness_air/starknet_with_keccak"]
-dynamic = ["swiftness_air/dynamic"]
-stone5 = ["swiftness_air/stone5"]
-stone6 = ["swiftness_air/stone6"]
 keccak_160_lsb = [
     "swiftness_pow/keccak",
     "swiftness_commitment/keccak_160_lsb"
