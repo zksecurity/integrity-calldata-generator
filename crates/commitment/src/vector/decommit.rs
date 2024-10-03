@@ -1,11 +1,10 @@
 use super::types::{Commitment, Query, QueryWithDepth, Witness};
 use alloc::vec::Vec;
-#[cfg(any(feature = "blake2s_160_lsb", feature = "blake2s_248_lsb"))]
-use blake2::{Blake2s256, Digest};
-#[cfg(any(feature = "keccak_160_lsb", feature = "keccak_248_lsb"))]
-use sha3::{Digest, Keccak256};
+use blake2::Blake2s256;
+use sha3::{Keccak256, Digest};
 use starknet_core::types::NonZeroFelt;
 use starknet_crypto::{poseidon_hash, Felt};
+use crate::table::decommit::{HASHER_BLAKE2S, HASHER_248_LSB};
 
 pub fn vector_commitment_decommit(
     commitment: Commitment,
@@ -111,28 +110,17 @@ fn hash_friendly_unfriendly(x: Felt, y: Felt, is_verifier_friendly: bool) -> Fel
         hash_data.extend(&x.to_bytes_be());
         hash_data.extend(&y.to_bytes_be());
 
-        let mut hasher = {
-            #[cfg(any(feature = "keccak_160_lsb", feature = "keccak_248_lsb"))]
-            {
-                Keccak256::new()
-            }
-            #[cfg(any(feature = "blake2s_160_lsb", feature = "blake2s_248_lsb"))]
-            {
-                Blake2s256::new()
-            }
-        };
-
-        hasher.update(&hash_data);
-
-        {
-            #[cfg(any(feature = "keccak_160_lsb", feature = "blake2s_160_lsb"))]
-            {
-                Felt::from_bytes_be_slice(&hasher.finalize().as_slice()[12..32])
-            }
-
-            #[cfg(any(feature = "keccak_248_lsb", feature = "blake2s_248_lsb"))]
-            {
-                Felt::from_bytes_be_slice(&hasher.finalize().as_slice()[1..32])
+        unsafe {
+            let hasher_bit = if HASHER_248_LSB { 1 } else { 12 };
+            
+            if HASHER_BLAKE2S {
+                let mut hasher = Blake2s256::new();
+                hasher.update(&hash_data);
+                Felt::from_bytes_be_slice(&hasher.finalize().as_slice()[hasher_bit..32])
+            } else {
+                let mut hasher = Keccak256::new();
+                hasher.update(&hash_data);
+                Felt::from_bytes_be_slice(&hasher.finalize().as_slice()[hasher_bit..32])
             }
         }
     }

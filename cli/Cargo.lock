@@ -822,6 +822,7 @@ dependencies = [
  "sha3",
  "starknet-crypto",
  "starknet-types-core",
+ "swiftness_commitment",
  "swiftness_transcript",
  "thiserror",
  "thiserror-no-std",

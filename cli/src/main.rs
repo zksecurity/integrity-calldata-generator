@@ -18,6 +18,7 @@ use swiftness_air::layout::starknet_with_keccak::Layout as LayoutStarknetWithKec
 
 use swiftness_air::public_memory::STONE_6_ENABLED;
 use swiftness_fri::fri::{CONST_STATE, VAR_STATE, WITNESS};
+use swiftness_commitment::table::decommit::{HASHER_BLAKE2S, HASHER_248_LSB};
 use swiftness_stark::stark::Error;
 use swiftness_stark::types::StarkProof;
 
@@ -44,6 +45,18 @@ enum StoneVersion {
     Stone6,
 }
 
+#[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, ValueEnum)]
+enum Hasher {
+    #[clap(name = "keccak_160_lsb")]
+    Keccak160Lsb,
+    #[clap(name = "keccak_248_lsb")]
+    Keccak248Lsb,
+    #[clap(name = "blake2s_160_lsb")]
+    Blake2s160Lsb,
+    #[clap(name = "blake2s_248_lsb")]
+    Blake2s248Lsb,
+}
+
 #[derive(Parser)]
 #[command(author, version, about)]
 struct CairoVMVerifier {
@@ -58,6 +71,10 @@ struct CairoVMVerifier {
     /// Layout
     #[clap(short, long)]
     layout: Layout,
+
+    /// Hasher
+    #[clap(short, long)]
+    hasher: Hasher,
 
     /// Stone version
     #[clap(short, long)]
@@ -86,6 +103,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let security_bits = stark_proof.config.security_bits();
     unsafe {
         STONE_6_ENABLED = cli.stone_version == StoneVersion::Stone6;
+        HASHER_BLAKE2S = cli.hasher == Hasher::Blake2s160Lsb || cli.hasher == Hasher::Blake2s248Lsb;
+        HASHER_248_LSB = cli.hasher == Hasher::Keccak248Lsb || cli.hasher == Hasher::Blake2s248Lsb;
     };
     let _result = verify_layout(cli.layout, stark_proof, security_bits)?;
 
