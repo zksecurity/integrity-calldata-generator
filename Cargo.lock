@@ -122,9 +122,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "cairo-proof-parser"
 version = "0.1.2"
-source = "git+https://github.com/Okm165/cairo-proof-parser?rev=97a04bbee07330311b38d6f4cecfed3acb237626#97a04bbee07330311b38d6f4cecfed3acb237626"
 dependencies = [
  "anyhow",
  "clap",
@@ -809,7 +807,6 @@ version = "0.0.7"
 dependencies = [
  "anyhow",
  "cairo-felt",
- "cairo-proof-parser",
  "clap",
  "itertools",
  "num-bigint",
