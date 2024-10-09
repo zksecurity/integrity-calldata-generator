@@ -1,12 +1,12 @@
-use cairo_proof_parser::{parse, Expr};
+use swiftness_proof_parser::parse;
 use itertools::chain;
 use swiftness::vec252::VecFelt252;
 use cairo_felt::Felt252;
 use num_traits::Num;
-
+use crate::transform::{Expr, StarkProofExprs};
 
 pub fn serialize(input: String) -> anyhow::Result<String> {
-    let mut parsed = parse(input)?;
+    let mut parsed: StarkProofExprs = parse(input)?.into();
 
     let config: VecFelt252 = serde_json::from_str(&parsed.config.to_string()).unwrap();
     let public_input: VecFelt252 = serde_json::from_str(&parsed.public_input.to_string()).unwrap();

@@ -31,7 +31,6 @@ anyhow = "1"
 blake2 = { version = "0.10.6",  default-features = false }
 num-bigint = { version = "0.4.6",  default-features = false }
 cairo-felt = "0.9"
-cairo-proof-parser = { git = "https://github.com/Okm165/cairo-proof-parser", rev = "97a04bbee07330311b38d6f4cecfed3acb237626"}
 clap = { version = "4.5.2", features = ["derive"] }
 itertools = "0.13.0"
 num-traits = "0.2.15"

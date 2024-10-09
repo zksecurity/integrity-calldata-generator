@@ -10,7 +10,6 @@ version = "0.1.2"
 [dependencies]
 anyhow = "1"
 cairo-felt = "0.9"
-cairo-proof-parser = { git = "https://github.com/Okm165/cairo-proof-parser", rev = "97a04bbee07330311b38d6f4cecfed3acb237626" }
 clap = { version = "4.4.4", features = ["derive"] }
 itertools = "0.13.0"
 num-bigint = "0.4.4"

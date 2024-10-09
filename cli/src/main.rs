@@ -4,12 +4,10 @@ use clap::{Parser, ValueEnum};
 use std::path::PathBuf;
 pub use swiftness_proof_parser::parse;
 pub use swiftness_stark::config::StarkConfig;
-pub use transform::TransformTo;
 use starknet_crypto::Felt;
 use itertools::Itertools;
 
 use swiftness_air::layout::dex::Layout as LayoutDex;
-// use swiftness_air::layout::dynamic::Layout;
 use swiftness_air::layout::recursive::Layout as LayoutRecursive;
 use swiftness_air::layout::recursive_with_poseidon::Layout as LayoutRecursiveWithPoseidon;
 use swiftness_air::layout::small::Layout as LayoutSmall;
@@ -24,6 +22,7 @@ use swiftness_stark::types::StarkProof;
 
 mod serialize;
 use crate::serialize::serialize;
+use swiftness::transform_stark::TransformTo;
 use std::fs::write;
 use std::format;
 
@@ -101,12 +100,12 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let input = std::fs::read_to_string(cli.proof)?;
     let stark_proof = parse(input.clone())?.transform_to();
     let security_bits = stark_proof.config.security_bits();
+    let _result = verify_layout(cli.layout, stark_proof, security_bits)?;
     unsafe {
         STONE_6_ENABLED = cli.stone_version == StoneVersion::Stone6;
         HASHER_BLAKE2S = cli.hasher == Hasher::Blake2s160Lsb || cli.hasher == Hasher::Blake2s248Lsb;
         HASHER_248_LSB = cli.hasher == Hasher::Keccak248Lsb || cli.hasher == Hasher::Blake2s248Lsb;
     };
-    let _result = verify_layout(cli.layout, stark_proof, security_bits)?;
 
     let (const_state, mut var_state, mut witness) = unsafe {
         (CONST_STATE.clone(), VAR_STATE.clone(), WITNESS.clone())

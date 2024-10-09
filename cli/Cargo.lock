@@ -122,19 +122,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "cairo-proof-parser"
-version = "0.1.2"
-source = "git+https://github.com/Okm165/cairo-proof-parser?rev=97a04bbee07330311b38d6f4cecfed3acb237626#97a04bbee07330311b38d6f4cecfed3acb237626"
-dependencies = [
- "anyhow",
- "clap",
- "num-bigint",
- "regex",
- "serde",
- "serde_json",
-]
-
-[[package]]
 name = "cfg-if"
 version = "1.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -746,7 +733,6 @@ version = "0.1.2"
 dependencies = [
  "anyhow",
  "cairo-felt",
- "cairo-proof-parser",
  "clap",
  "itertools",
  "num-bigint",
