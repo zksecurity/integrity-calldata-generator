@@ -100,12 +100,12 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let input = std::fs::read_to_string(cli.proof)?;
     let stark_proof = parse(input.clone())?.transform_to();
     let security_bits = stark_proof.config.security_bits();
-    let _result = verify_layout(cli.layout, stark_proof, security_bits)?;
     unsafe {
         STONE_6_ENABLED = cli.stone_version == StoneVersion::Stone6;
         HASHER_BLAKE2S = cli.hasher == Hasher::Blake2s160Lsb || cli.hasher == Hasher::Blake2s248Lsb;
         HASHER_248_LSB = cli.hasher == Hasher::Keccak248Lsb || cli.hasher == Hasher::Blake2s248Lsb;
     };
+    verify_layout(cli.layout, stark_proof, security_bits)?;
 
     let (const_state, mut var_state, mut witness) = unsafe {
         (CONST_STATE.clone(), VAR_STATE.clone(), WITNESS.clone())
