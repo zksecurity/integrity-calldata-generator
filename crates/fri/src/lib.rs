@@ -14,6 +14,8 @@ pub mod last_layer;
 pub mod layer;
 pub mod types;
 
+pub use crate::fri::{CONST_STATE, VAR_STATE, WITNESS};
+
 #[cfg(any(test, feature = "test_fixtures"))]
 pub mod fixtures;
 #[cfg(test)]
