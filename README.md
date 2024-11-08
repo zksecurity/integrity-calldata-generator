@@ -23,7 +23,7 @@ You can modify verifier address in `cli/calldata/contract_address` file.
 4. Send verification transactions
 
 ```
-./verify.sh <job_id> <layout> <hasher> <stone_version> <cairo_version>
+./verify.sh <job_id> <layout> <hasher> <stone_version> <memory_verification>
 ```
 
 For example
