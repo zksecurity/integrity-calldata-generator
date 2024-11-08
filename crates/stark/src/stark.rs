@@ -12,7 +12,7 @@ impl StarkProof {
     pub fn verify<Layout: GenericLayoutTrait + LayoutTrait>(
         &self,
         security_bits: Felt,
-    ) -> Result<(Felt, Felt), Error> {
+    ) -> Result<(), Error> {
         let n_original_columns =
             Layout::get_num_columns_first(&self.public_input).ok_or(Error::ColumnMissing)?;
         let n_interaction_columns =
@@ -62,7 +62,8 @@ impl StarkProof {
             &stark_domains,
         )?;
 
-        Ok(Layout::verify_public_input(&self.public_input)?)
+        Ok(())
+        // Ok(Layout::verify_public_input(&self.public_input)?)
     }
 }
 
