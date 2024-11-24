@@ -1,11 +1,11 @@
 pub mod transform;
 
 use clap::{Parser, ValueEnum};
+use itertools::Itertools;
+use starknet_crypto::Felt;
 use std::path::PathBuf;
 pub use swiftness_proof_parser::parse;
 pub use swiftness_stark::config::StarkConfig;
-use starknet_crypto::Felt;
-use itertools::Itertools;
 
 use swiftness_air::layout::dex::Layout as LayoutDex;
 use swiftness_air::layout::recursive::Layout as LayoutRecursive;
@@ -15,17 +15,16 @@ use swiftness_air::layout::starknet::Layout as LayoutStarknet;
 use swiftness_air::layout::starknet_with_keccak::Layout as LayoutStarknetWithKeccak;
 
 use swiftness_air::public_memory::STONE_6_ENABLED;
+use swiftness_commitment::table::decommit::{HASHER_248_LSB, HASHER_BLAKE2S};
 use swiftness_fri::fri::{CONST_STATE, VAR_STATE, WITNESS};
-use swiftness_commitment::table::decommit::{HASHER_BLAKE2S, HASHER_248_LSB};
 use swiftness_stark::stark::Error;
 use swiftness_stark::types::StarkProof;
 
 mod serialize;
 use crate::serialize::serialize;
-use swiftness::transform_stark::TransformTo;
-use std::fs::write;
 use std::format;
-
+use std::fs::write;
+use swiftness::transform_stark::TransformTo;
 
 #[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, ValueEnum)]
 #[clap(rename_all = "snake_case")]
@@ -83,12 +82,14 @@ struct CairoVMVerifier {
 fn verify_layout(
     layout: Layout,
     stark_proof: StarkProof,
-    security_bits: Felt
-) -> Result<(Felt, Felt), Error> {
+    security_bits: Felt,
+) -> Result<(), Error> {
     match layout {
         Layout::Dex => stark_proof.verify::<LayoutDex>(security_bits),
         Layout::Recursive => stark_proof.verify::<LayoutRecursive>(security_bits),
-        Layout::RecursiveWithPoseidon => stark_proof.verify::<LayoutRecursiveWithPoseidon>(security_bits),
+        Layout::RecursiveWithPoseidon => {
+            stark_proof.verify::<LayoutRecursiveWithPoseidon>(security_bits)
+        }
         Layout::Small => stark_proof.verify::<LayoutSmall>(security_bits),
         Layout::Starknet => stark_proof.verify::<LayoutStarknet>(security_bits),
         Layout::StarknetWithKeccak => stark_proof.verify::<LayoutStarknetWithKeccak>(security_bits),
@@ -107,29 +108,20 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     };
     verify_layout(cli.layout, stark_proof, security_bits)?;
 
-    let (const_state, mut var_state, mut witness) = unsafe {
-        (CONST_STATE.clone(), VAR_STATE.clone(), WITNESS.clone())
-    };
+    let (const_state, mut var_state, mut witness) =
+        unsafe { (CONST_STATE.clone(), VAR_STATE.clone(), WITNESS.clone()) };
     let initial = serialize(input)?
         .split_whitespace()
         .map(|s| Felt::from_dec_str(s).unwrap().to_hex_string())
         .join(" ");
 
-    let final_ = format!(
-        "{} {} {}",
-        const_state,
-        var_state.pop().unwrap(),
-        witness.pop().unwrap()
-    );
+    let final_ = format!("{} {} {}", const_state, var_state.pop().unwrap(), witness.pop().unwrap());
 
     write(cli.out.join("initial"), initial)?;
     write(cli.out.join("final"), final_)?;
 
     for (i, (v, w)) in var_state.iter().zip(witness.iter()).enumerate() {
-        write(
-            cli.out.join(format!("step{}", i + 1)),
-            format!("{} {} {}", const_state, v, w)
-        )?;
+        write(cli.out.join(format!("step{}", i + 1)), format!("{} {} {}", const_state, v, w))?;
     }
     print!("{}", var_state.len());
     Ok(())
