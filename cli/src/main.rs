@@ -71,7 +71,7 @@ struct CairoVMVerifier {
     layout: Layout,
 
     /// Hasher
-    #[clap(short, long)]
+    #[clap(long)]
     hasher: Hasher,
 
     /// Stone version
