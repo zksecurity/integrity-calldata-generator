@@ -30,7 +30,6 @@ send_transaction() {
         sncast \
             --wait \
             invoke \
-            --fee-token eth \
             --contract-address "$(<calldata/contract_address)" \
             --function "$1" \
             --calldata "$3 $(<$2)"
