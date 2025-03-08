@@ -7,7 +7,7 @@ cd cli
 Make sure that there is no outputted files in `calldata` directory
 
 ```
-rm -f calldata/final calldata/initial calldata/step*
+rm -f calldata/final calldata/initial calldata/step* calldata/full
 ```
 
 ```

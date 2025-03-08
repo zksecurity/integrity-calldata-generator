@@ -110,13 +110,24 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let (const_state, mut var_state, mut witness) =
         unsafe { (CONST_STATE.clone(), VAR_STATE.clone(), WITNESS.clone()) };
-    let initial = serialize(input)?
+    let mut full = serialize(input)?
         .split_whitespace()
         .map(|s| Felt::from_dec_str(s).unwrap().to_hex_string())
-        .join(" ");
+        .collect::<Vec<_>>();
 
     let final_ = format!("{} {} {}", const_state, var_state.pop().unwrap(), witness.pop().unwrap());
 
+    let full_witness = witness.iter().join(" ");
+    let full_witness_size = full_witness.matches(" ").count() + 1;
+
+    let initial = full.iter().join(" ");
+    full.pop().unwrap();
+    full.push(format!("{:x}", full_witness_size));
+    full.push(full_witness);
+
+    let full_data = full.iter().join(" ");
+
+    write(cli.out.join("full"), full_data)?;
     write(cli.out.join("initial"), initial)?;
     write(cli.out.join("final"), final_)?;
 
