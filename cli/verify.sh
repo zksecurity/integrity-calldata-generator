@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 if [ $# -ne 5 ]; then
-    echo "Usage: $0 <job_id> <layout> <hasher> <stone_version> <cairo_version>"
+    echo "Usage: $0 <job_id> <layout> <hasher> <stone_version> <memory_verification>"
     exit 1
 fi
 
@@ -19,7 +19,7 @@ job_id=$1
 layout=$(string_to_hex $2)
 hasher=$(string_to_hex $3)
 stone_version=$(string_to_hex $4)
-cairo_version=$(string_to_hex $5)
+memory_verification=$(string_to_hex $5)
 
 send_transaction() {
     local retries=5
@@ -53,7 +53,7 @@ send_transaction() {
 
 echo ""
 echo "Sending verify_proof_initial"
-send_transaction "verify_proof_initial" "calldata/initial" "$job_id $layout $hasher $stone_version $cairo_version"
+send_transaction "verify_proof_initial" "calldata/initial" "$job_id $layout $hasher $stone_version $memory_verification"
 
 i=1
 while true; do
